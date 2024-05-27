@@ -55,10 +55,11 @@ if __name__ == "__main__":
         net_file="sumo_rl/nets/2way-single-intersection/single-intersection.net.xml",
         route_file=args.route,
         out_csv_name=out_csv,
-        use_gui=True,
+        use_gui=args.gui,
         num_seconds=args.seconds,
         min_green=args.min_green,
         max_green=args.max_green,
+        reward_fn=args.reward,
         sumo_warnings=False,
     )
     model = DQN(
@@ -66,7 +67,7 @@ if __name__ == "__main__":
         starting_state=env.reset(),
         state_space=13,
         action_space=env.action_space,
-        reward_fn="diff-waiting-time",
+        reward_fn=args.reward,
         trainPhase=args.train
     )
     

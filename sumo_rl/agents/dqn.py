@@ -1,6 +1,5 @@
 from tqdm import tqdm
 from loguru import logger
-from tqdm import tqdm
 import torch
 import numpy as np
 from collections import deque
@@ -57,7 +56,7 @@ class DQN:
         trainPhase,
         max_steps=100000,
         batch_size=32,
-        target_update_frequency=2,
+        target_update_frequency=500,
         fill_mem_step=1000, 
         memory_size=50000,
         lr=0.0005,
@@ -65,7 +64,6 @@ class DQN:
         exploration_strategy=EpsilonGreedy()
     ):
         """Initialize Q-learning agent."""
-        print(action_space.n)
         self.env = env
         self.max_epsilon = 1
         self.min_epsilon = 0.02
