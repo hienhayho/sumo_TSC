@@ -1,19 +1,19 @@
-import torch
 import time
 import json
+import torch
 import random
 import numpy as np
 from tqdm import tqdm
 from loguru import logger
-from collections import deque
 from torch.optim import Adam
+from collections import deque
 
 from sumo_rl.agents.base_net import NetWork
 from sumo_rl.util.logging import init_logging
 
 
-class DQN:
-    """Deep Q-learning Agent class."""
+class DoubleDQN:
+    """Double Deep Q-learning Agent class."""
 
     def __init__(
         self, 
@@ -52,7 +52,7 @@ class DQN:
         self.fill_mem_step = fill_mem_step
         self.optimizer = Adam(self.q_net.parameters(), lr=lr)
         if trainPhase:
-            self.saved_dir = init_logging("dqn", reward_fn=reward_fn)
+            self.saved_dir = init_logging("double_dqn", reward_fn=reward_fn)
     
     def fill_memory(self):
         logger.info("Starting fill...")
@@ -125,13 +125,18 @@ class DQN:
             dones = torch.tensor(dones, dtype=torch.float32).unsqueeze(-1).to("cuda")
             next_states = torch.tensor(next_states, dtype=torch.float32).to("cuda")
             
+            # Double DQN target calculation
+            online_next_q_values = self.q_net(next_states)
+            best_next_actions = online_next_q_values.argmax(dim=1, keepdim=True)
             target_q_values = self.target_q_net(next_states)
-            max_target_q_values = target_q_values.max(dim=1, keepdim=True)[0]
-            targets = rewards + self.gamma * (1-dones) * max_target_q_values
+            max_target_q_values = target_q_values.gather(1, best_next_actions).detach()
+
+            targets = rewards + self.gamma * (1 - dones) * max_target_q_values
+
             # Compute loss
             q_values = self.q_net(states)
+            action_q_values = q_values.gather(1, actions)
 
-            action_q_values = torch.gather(input=q_values, dim=1, index=actions).to("cuda")
             loss = torch.nn.functional.mse_loss(action_q_values, targets)
 
             # gradient descent for q-network
@@ -171,8 +176,6 @@ class DQN:
             action = self.q_net.choose_action(state)
             action = {"t": action}
             next_state, reward, done, info, truncated = self.env.step(action)
-            print("next_state: ", next_state)
-            input()
             state = next_state
             all_reward += reward["t"]
         print(all_reward)

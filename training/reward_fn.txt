@@ -1,0 +1,4 @@
+diff-waiting-time
+average-speed
+queue
+pressure

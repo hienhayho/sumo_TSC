@@ -11,7 +11,7 @@ else:
     sys.exit("Please declare the environment variable 'SUMO_HOME'")
 
 from sumo_rl import SumoEnvironment
-from sumo_rl.agents import QLAgent, DQN
+from sumo_rl.agents import DoubleDQN
 
 
 if __name__ == "__main__":
@@ -50,18 +50,22 @@ if __name__ == "__main__":
     experiment_time = str(datetime.now()).split(".")[0]
     out_csv = f"outputs/2way-single-intersection/{experiment_time}_alpha{args.alpha}_gamma{args.gamma}_eps{args.epsilon}_decay{args.decay}_reward{args.reward}"
 
+    gui_enable = False
+    if not args.train:
+        gui_enable = True
+    
     env = SumoEnvironment(
         net_file="sumo_rl/nets/2way-single-intersection/single-intersection.net.xml",
         route_file=args.route,
         out_csv_name=out_csv,
-        use_gui=args.gui,
+        use_gui=gui_enable,
         num_seconds=args.seconds,
         min_green=args.min_green,
         max_green=args.max_green,
         reward_fn=args.reward,
         sumo_warnings=False,
     )
-    model = DQN(
+    model = DoubleDQN(
         env=env,
         starting_state=env.reset(),
         state_space=13,

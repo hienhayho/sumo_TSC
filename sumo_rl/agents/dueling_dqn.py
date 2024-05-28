@@ -1,19 +1,21 @@
 import torch
+import torch.nn as nn
+import torch.optim as Adam
 import time
 import json
+import torch
 import random
 import numpy as np
 from tqdm import tqdm
 from loguru import logger
-from collections import deque
 from torch.optim import Adam
+from collections import deque
 
-from sumo_rl.agents.base_net import NetWork
 from sumo_rl.util.logging import init_logging
-
-
-class DQN:
-    """Deep Q-learning Agent class."""
+from sumo_rl.agents.base_net import DuelingNetwork
+    
+class DuelingDQN:
+    """Dueling Q-learning Agent class."""
 
     def __init__(
         self, 
@@ -31,7 +33,7 @@ class DQN:
         lr=0.0005,
         gamma=0.99,
     ):
-        """Initialize Q-learning agent."""
+        """Initialize Dueling Q-learning agent."""
         self.env = env
         self.max_epsilon = 1
         self.min_epsilon = 0.02
@@ -46,13 +48,13 @@ class DQN:
         self.action = None
         self.gamma = gamma
         self.acc_reward = 0
-        self.q_net = NetWork(state_space=state_space, action_space=action_space.n).to("cuda")
-        self.target_q_net = NetWork(state_space=state_space, action_space=action_space.n).to("cuda")
+        self.q_net = DuelingNetwork(state_space=state_space, action_space=action_space.n).to("cuda")
+        self.target_q_net = DuelingNetwork(state_space=state_space, action_space=action_space.n).to("cuda")
         self.memory_size = memory_size
         self.fill_mem_step = fill_mem_step
         self.optimizer = Adam(self.q_net.parameters(), lr=lr)
         if trainPhase:
-            self.saved_dir = init_logging("dqn", reward_fn=reward_fn)
+            self.saved_dir = init_logging("dueling_dqn", reward_fn=reward_fn)
     
     def fill_memory(self):
         logger.info("Starting fill...")
@@ -85,7 +87,7 @@ class DQN:
         time_now = time.strftime("%Y%m%d")
         save_path = self.saved_dir / f"model_{time_now}.pth"
         torch.save(self.q_net.state_dict(), save_path)
-        logger.info(f"Model is save at: {save_path}")
+        logger.info(f"Model is saved at: {save_path}")
     
     @logger.catch
     def train(self, env):
@@ -111,6 +113,9 @@ class DQN:
                 reward_buffer.append(reward_per_episode)
                 reward_per_episode = 0.0
             
+            if len(memory) < self.batch_size:
+                continue
+            
             experiences = random.sample(memory, self.batch_size)
             states = [ex[0]["t"] for ex in experiences]
             actions = [ex[1]["t"] for ex in experiences]
@@ -118,7 +123,6 @@ class DQN:
             dones = [ex[3]["t"] for ex in experiences]
             next_states = [ex[4]["t"] for ex in experiences]
 
-            
             states = torch.tensor(states, dtype=torch.float32).to("cuda")
             actions = torch.tensor(actions, dtype=torch.int64).unsqueeze(-1).to("cuda") # (batch_size,) --> (batch_size, 1)
             rewards = torch.tensor(rewards, dtype=torch.float32).unsqueeze(-1).to("cuda")
@@ -134,19 +138,17 @@ class DQN:
             action_q_values = torch.gather(input=q_values, dim=1, index=actions).to("cuda")
             loss = torch.nn.functional.mse_loss(action_q_values, targets)
 
-            # gradient descent for q-network
             self.optimizer.zero_grad()
             loss.backward()
             self.optimizer.step()
             
-            if (step+1) % self.target_update_frequency == 0:
+            if (step + 1) % self.target_update_frequency == 0:
                 self.target_q_net.load_state_dict(self.q_net.state_dict())
 
-            # print training results
-            if (step+1) % 5000 == 0:
+            if (step + 1) % 5000 == 0:
                 average_reward = np.mean(reward_buffer)
                 all_rewards.append(average_reward)
-                logger.info(f'Step: {step+1} Average reward: {average_reward}')
+                logger.info(f'Step: {step + 1} Average reward: {average_reward}')
         
         rewards = {
             "all_reward": all_rewards
