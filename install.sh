@@ -7,7 +7,6 @@ echo 'export SUMO_HOME="/usr/share/sumo"' >> ~/.bashrc
 source ~/.bashrc
 export LIBSUMO_AS_TRACI=1
 
-cd sumo-rl
 pip install -e .
 
 pip install -r requirements.txt

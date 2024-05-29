@@ -25,5 +25,5 @@ def build_model(args):
         args["net_type"] = "duel"
     else:
         raise NotImplementedError(f"Model with name: {args['model_name']} was not defined.")
-    
+
     return agent(**args, **config["model"])
