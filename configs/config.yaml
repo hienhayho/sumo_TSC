@@ -1,0 +1,14 @@
+model:
+  max_epsilon: 1
+  min_epsilon: 0.02
+
+  state_space: 13
+  batch_size: 32
+  max_steps: 100000
+  target_update_frequency: 500
+
+  fill_mem_step: 1000
+  memory_size: 50000
+
+  lr: 0.0005
+  gamma: 0.99
