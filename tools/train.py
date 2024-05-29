@@ -39,7 +39,7 @@ if __name__ == "__main__":
         dest="reward",
         type=str,
         default="diff-waiting-time",
-        choices=["diff-waiting-time", "average-speed", "queue", "pressure"],
+        choices=["diff-waiting-time", "average-speed", "queue", "pressure", "diff-travel-time"],
         required=False,
         help="Reward function.\n",
     )
