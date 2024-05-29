@@ -10,5 +10,4 @@ export LIBSUMO_AS_TRACI=1
 cd sumo-rl
 pip install -e .
 
-pip install torch==2.0.1 torchvision==0.15.2 torchaudio==2.0.2 --index-url https://download.pytorch.org/whl/cu118
-pip install loguru ipython tqdm nvitop
+pip install -r requirements.txt

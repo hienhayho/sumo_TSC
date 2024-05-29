@@ -1,12 +1,12 @@
 import torch
 import torch.nn as nn
 
-class NetWork(nn.Module):
+class DQNNetWork(nn.Module):
     """Neural Network class."""
 
     def __init__(self, state_space, action_space):
         """Initialize neural network."""
-        super(NetWork, self).__init__()
+        super(DQNNetWork, self).__init__()
         self.fc1 = nn.Linear(state_space, 512)
         self.fc2 = nn.Linear(512, 256)
         self.fc3 = nn.Linear(256, 64)
