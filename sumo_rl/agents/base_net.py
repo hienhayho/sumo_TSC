@@ -1,6 +1,18 @@
 import torch
 import torch.nn as nn
 
+allow_net_type = [
+    "dqn",
+    "duel"
+]
+
+def build_net(net_type, state_space, action_space):
+    assert net_type in allow_net_type, f"Net type: {net_type} is not allowed."
+    if net_type == "dqn":
+        return DQNNetWork(state_space=state_space, action_space=action_space)
+    elif net_type == "duel":
+        return DuelingNetwork(state_space=state_space, action_space=action_space)
+
 class DQNNetWork(nn.Module):
     """Neural Network class."""
 

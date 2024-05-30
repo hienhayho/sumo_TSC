@@ -1,4 +1,4 @@
-NUMS=$1
+NUMS=${1:-0}
 
 echo "Traing agent with ASMax..."
 

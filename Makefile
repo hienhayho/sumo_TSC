@@ -11,7 +11,7 @@ train:
 	@echo "Running all .sh files in the $(SCRIPTS_DIR) directory..."
 	@for script in $(SCRIPTS_DIR)/*.sh; do \
 		echo "Running $$script"; \
-		$$script; \
+		$$script 0; \
 	done
 
 install:

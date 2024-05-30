@@ -12,3 +12,7 @@ def init_logging(model: str, reward_fn: str):
     file_name = saved_dir / Path("training.log")
     logger.add(str(file_name))
     return saved_dir
+
+def general_logging(model_name, kwargs):
+    for key, value in kwargs.items():
+        logger.info(f"{model_name} - {key}: {value}")

@@ -9,9 +9,9 @@ from torch.optim import Adam
 from collections import deque
 from abc import ABC, abstractmethod
 
-from sumo_rl.agents.base_net import DQNNetWork, DuelingNetwork
-from sumo_rl.util.logging import init_logging
-
+device = "cuda" if torch.cuda.is_available() else "cpu"
+from sumo_rl.agents.base_net import build_net
+from sumo_rl.util.logging import init_logging, general_logging
 
 class BaseAgent(ABC):
     """Double Deep Q-learning Agent class."""
@@ -53,21 +53,29 @@ class BaseAgent(ABC):
         self.action = None
         self.gamma = gamma
         self.acc_reward = 0
-        if net_type == "dqn":
-            self.q_net = DQNNetWork(state_space=state_space, action_space=action_space.n).to("cuda")
-            self.target_q_net = DQNNetWork(state_space=state_space, action_space=action_space.n).to("cuda")
-        elif net_type == "duel":
-            self.q_net = DuelingNetwork(state_space=state_space, action_space=action_space.n).to("cuda")
-            self.target_q_net = DuelingNetwork(state_space=state_space, action_space=action_space.n).to("cuda")
-        else:
-            raise ValueError("Invalid net type")
-    
         self.memory_size = memory_size
         self.fill_mem_step = fill_mem_step
+        
+        self.q_net = build_net(net_type=net_type, state_space=state_space, action_space=action_space.n).to(device)
+        self.target_q_net = build_net(net_type=net_type, state_space=state_space, action_space=action_space.n).to(device)
+        
         self.optimizer = Adam(self.q_net.parameters(), lr=lr)
         if trainPhase:
             self.saved_dir = init_logging(self.model_name, reward_fn=reward_fn)
-            logger.info(f"{self.model_name} - Init network with type: {self.net_type}")
+            kwargs = {
+                "max_epsilon": max_epsilon,
+                "min_epsilon": min_epsilon,
+                "max_steps": max_steps,
+                "batch_size": batch_size,
+                "target_update_frequency": target_update_frequency,
+                "fill_mem_step": fill_mem_step,
+                "memory_size": memory_size,
+                "lr": lr,
+                "gamma": gamma,
+                "net_type": net_type
+            }
+            general_logging(self.model_name, kwargs)
+
     
     def fill_memory(self):
         logger.info(f"{self.model_name} - Starting fill {self.fill_mem_step} samples to memory ...")
