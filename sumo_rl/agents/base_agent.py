@@ -63,6 +63,8 @@ class BaseAgent(ABC):
         if trainPhase:
             self.saved_dir = init_logging(self.model_name, reward_fn=reward_fn)
             kwargs = {
+                "net_type": net_type,
+                "reward_fn": reward_fn,
                 "max_epsilon": max_epsilon,
                 "min_epsilon": min_epsilon,
                 "max_steps": max_steps,
@@ -70,9 +72,9 @@ class BaseAgent(ABC):
                 "target_update_frequency": target_update_frequency,
                 "fill_mem_step": fill_mem_step,
                 "memory_size": memory_size,
-                "lr": lr,
                 "gamma": gamma,
-                "net_type": net_type
+                "optimizer": self.optimizer.__class__.__name__,
+                "lr": lr,
             }
             general_logging(self.model_name, kwargs)
 

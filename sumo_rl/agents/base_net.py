@@ -55,7 +55,8 @@ class DuelingNetwork(nn.Module):
         # Separate streams for value and advantage
         self.value_stream = nn.Linear(64, 1)
         self.advantage_stream = nn.Linear(64, action_space)
-    
+        self.heInitilize()
+
     def forward(self, x):
         x = self.relu(self.fc1(x))
         x = self.relu(self.fc2(x))
@@ -73,3 +74,9 @@ class DuelingNetwork(nn.Module):
         q_values = self(state)
         action = torch.argmax(q_values, dim=1).item()
         return action
+    
+    def heInitilize(self):
+        """He initialization."""
+        torch.nn.init.kaiming_normal_(self.fc1.weight)
+        torch.nn.init.kaiming_normal_(self.fc2.weight)
+        torch.nn.init.kaiming_normal_(self.fc3.weight)

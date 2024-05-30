@@ -44,7 +44,7 @@ For training, you can refer to [tools/train.py](tools/train.py).
 CUDA_VISIBLE_DEVICES=0 python tools/train.py -train -name dqn -s 10000
 ```
 
-* Training AIO (all in one - 4 agents and 4 reward functions):
+* Training AIO (all in one - 4 agents, 4 reward functions, 4 threads):
 ```bash
 apt-get install make -y
 make train
