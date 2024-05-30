@@ -120,7 +120,6 @@ class BaseAgent(ABC):
         for step in bar:
             action = self.act(step, state=state)
             next_state, reward, done, info, truncated = self.env.step(action)
-            
             memory.append((state, action, reward, done, next_state, "train"))
             reward_per_episode += reward["t"]
             state = next_state

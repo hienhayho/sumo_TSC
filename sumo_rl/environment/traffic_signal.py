@@ -2,6 +2,8 @@
 import os
 import sys
 from typing import Callable, List, Union
+from functools import reduce
+import operator
 
 
 if "SUMO_HOME" in os.environ:
@@ -207,10 +209,22 @@ class TrafficSignal:
         return reward
 
     def _diff_travel_time_reward(self):
-        current_total_time = sum(self._get_travel_time())
+        current_total_time = sum(self._get_travel_time()) / 100.0
         reward = self.last_measure - current_total_time
         self.last_measure = current_total_time
         return reward
+    
+    def _get_completed_trip(self):
+        cnt = 0
+        vehs = [self.sumo.lane.getLastStepVehicleIDs(lane) for lane in self.lanes]
+        out = reduce(operator.concat, vehs)
+        for veh_id in out:
+            if self.sumo.vehicle.getRoadID(veh_id) == '':
+                cnt += 1
+        return cnt
+    
+    def _throughput_minus_queue_reward(self):
+        return self.get_throughput_minus_queue()
     
     def _get_travel_time(self):
         return [self.sumo.lane.getTraveltime(lane) for lane in self.lanes]
@@ -312,6 +326,15 @@ class TrafficSignal:
         # print("nums: ", nums)
         # return np.sum(nums, axis=1)
         return normalized_nums
+
+    def get_throughput_minus_queue(self):
+        throughput = sum(
+            self.sumo.lane.getLastStepVehicleNumber(lane) for lane in self.lanes
+        )
+        queue = sum(
+            self.sumo.lane.getLastStepHaltingNumber(lane) for lane in self.lanes
+        )
+        return throughput - queue
     
     def get_avg_speed_in_inbound_intersection(self):
         detIDs = self.sumo.lanearea.getIDList()
@@ -360,6 +383,8 @@ class TrafficSignal:
     reward_fns = {
         "diff-waiting-time": _diff_waiting_time_reward,
         "diff-travel-time": _diff_travel_time_reward,
+        "get-completed-trip": _get_completed_trip,
+        "throughput-minus-queue-reward": _throughput_minus_queue_reward,
         "average-speed": _average_speed_reward,
         "queue": _queue_reward,
         "pressure": _pressure_reward,

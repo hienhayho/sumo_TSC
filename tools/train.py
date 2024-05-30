@@ -39,7 +39,15 @@ if __name__ == "__main__":
         dest="reward",
         type=str,
         default="diff-waiting-time",
-        choices=["diff-waiting-time", "average-speed", "queue", "pressure", "diff-travel-time"],
+        choices=[
+            "diff-waiting-time", 
+            "average-speed", 
+            "queue", 
+            "pressure", 
+            "diff-travel-time", 
+            "get-completed-trip",
+            "throughput-minus-queue-reward"
+        ],
         required=False,
         help="Reward function.\n",
     )
@@ -60,6 +68,9 @@ if __name__ == "__main__":
 
     gui_enable = False
     if not args.train:
+        gui_enable = True
+    
+    if args.gui:
         gui_enable = True
     
     env = SumoEnvironment(
