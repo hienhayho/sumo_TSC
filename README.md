@@ -14,12 +14,17 @@ You can refer to [sumo_rl](https://github.com/LucasAlegre/sumo-rl?tab=readme-ov-
 
 ```bash
 git clone https://github.com/hienhayho/sumo_TSC.git
-
 cd sumo_TSC/
 
-chmod +x install.sh
+conda create -n rl python=3.10 -y
+conda activate rl
 
+chmod +x install.sh
 bash ./install.sh
+echo 'export SUMO_HOME="/usr/share/sumo"' >> ~/.bashrc
+source ~/.bashrc
+
+conda activate rl
 ```
 > If it shows: **Permission denied**, run: `sudo bash ./install.sh`
 
