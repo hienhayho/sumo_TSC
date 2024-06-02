@@ -58,9 +58,7 @@ if __name__ == "__main__":
     experiment_time = str(datetime.now()).split(".")[0]
     out_csv = f"outputs/2way-single-intersection/{experiment_time}_alpha{args.alpha}_gamma{args.gamma}_eps{args.epsilon}_decay{args.decay}_reward{args.reward}"
 
-    gui_enable = False
-    if not args.train:
-        gui_enable = True
+    gui_enable = True 
     
     env = SumoEnvironment(
         net_file="sumo_rl/nets/2way-single-intersection/single-intersection.net.xml",

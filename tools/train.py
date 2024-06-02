@@ -60,18 +60,12 @@ if __name__ == "__main__":
         help="Model name.\n"
     )
     prs.add_argument("-runs", dest="runs", type=int, default=1, help="Number of runs.\n")
-    prs.add_argument("-train", action="store_true", default=False, help="Number of runs.\n")
     prs.add_argument("-model", dest="model", type=str, help="Model path (ONLY for test)")
     args = prs.parse_args()
     experiment_time = str(datetime.now()).split(".")[0]
     out_csv = f"outputs/2way-single-intersection/{experiment_time}_alpha{args.alpha}_gamma{args.gamma}_eps{args.epsilon}_decay{args.decay}_reward{args.reward}"
 
-    gui_enable = False
-    if not args.train:
-        gui_enable = True
-    
-    if args.gui:
-        gui_enable = True
+    gui_enable = args.gui
     
     env = SumoEnvironment(
         net_file="sumo_rl/nets/2way-single-intersection/single-intersection.net.xml",
@@ -90,7 +84,7 @@ if __name__ == "__main__":
         "env": env,
         "starting_state": env.reset(),
         "action_space": env.action_space,
-        "trainPhase": args.train,
+        "trainPhase": True,
         "reward_fn": args.reward,
     }
     

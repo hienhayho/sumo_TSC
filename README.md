@@ -41,10 +41,10 @@ For training, you can refer to [tools/train.py](tools/train.py).
 
 * Here an example for traing `dqn` with `diff-waiting-time` reward function:
 ```bash
-CUDA_VISIBLE_DEVICES=0 python tools/train.py -train -name dqn -s 10000
+CUDA_VISIBLE_DEVICES=0 python tools/train.py -name dqn -s 10000
 ```
 
-* Training AIO (all in one - 4 agents, 4 reward functions, 4 threads):
+* Training AIO (all in one):
 ```bash
 apt-get install make -y
 make train

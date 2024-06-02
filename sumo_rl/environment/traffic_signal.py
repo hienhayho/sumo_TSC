@@ -209,25 +209,25 @@ class TrafficSignal:
         return reward
 
     def _diff_travel_time_reward(self):
-        current_total_time = sum(self._get_travel_time()) / 100.0
+        travel_time = self._get_travel_time()
+        if np.max(travel_time) == np.min(travel_time):
+            return 50
+
+        # Normalize travel_time to its value from 0 to 100
+        travel_time = (travel_time - np.min(travel_time)) / (np.max(travel_time) - np.min(travel_time)) * 100
+        current_total_time = sum(travel_time) / len(travel_time)
         reward = self.last_measure - current_total_time
         self.last_measure = current_total_time
         return reward
     
     def _get_completed_trip(self):
-        cnt = 0
-        vehs = [self.sumo.lane.getLastStepVehicleIDs(lane) for lane in self.lanes]
-        out = reduce(operator.concat, vehs)
-        for veh_id in out:
-            if self.sumo.vehicle.getRoadID(veh_id) == '':
-                cnt += 1
-        return cnt
+        return self.sumo.simulation.getArrivedNumber()
     
     def _throughput_minus_queue_reward(self):
         return self.get_throughput_minus_queue()
     
     def _get_travel_time(self):
-        return [self.sumo.lane.getTraveltime(lane) for lane in self.lanes]
+        return [self.sumo.lane.getTraveltime(lane) for lane in self.lanes] + [self.sumo.lane.getTraveltime(lane) for lane in self.out_lanes]
 
     def _observation_fn_default(self):
         phase_id = [1 if self.green_phase == i else 0 for i in range(self.num_green_phases)]  # one-hot encoding

@@ -114,3 +114,4 @@ settings.json
 /logs
 /wandb
 /outputs
+/sumo_rl/nets/2way-single-intersection/out.xml
